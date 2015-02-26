@@ -918,6 +918,8 @@ static int fsl_sai_probe(struct platform_device *pdev)
 
 	pm_runtime_enable(&pdev->dev);
 
+	regcache_cache_only(sai->regmap, true);
+
 	ret = devm_snd_soc_register_component(&pdev->dev, &fsl_component,
 			&fsl_sai_dai, 1);
 	if (ret)
@@ -945,9 +947,53 @@ static const struct of_device_id fsl_sai_ids[] = {
 MODULE_DEVICE_TABLE(of, fsl_sai_ids);
 
 #ifdef CONFIG_PM
+static int fsl_sai_runtime_resume(struct device *dev)
+{
+	struct fsl_sai *sai = dev_get_drvdata(dev);
+	unsigned char offset = sai->soc->reg_offset;
+
+	/* Once we have working busfreq */
+	/* request_bus_freq(BUS_FREQ_AUDIO); */
+
+	if (sai->soc->flags & SAI_FLAG_PMQOS)
+		pm_qos_add_request(&sai->pm_qos_req,
+				PM_QOS_CPU_DMA_LATENCY, 0);
+
+	regcache_cache_only(sai->regmap, false);
+	regcache_mark_dirty(sai->regmap);
+
+	regmap_write(sai->regmap, FSL_SAI_TCSR(offset), FSL_SAI_CSR_SR);
+	regmap_write(sai->regmap, FSL_SAI_RCSR(offset), FSL_SAI_CSR_SR);
+	usleep_range(1000, 2000);
+	regmap_write(sai->regmap, FSL_SAI_TCSR(offset), 0);
+	regmap_write(sai->regmap, FSL_SAI_RCSR(offset), 0);
+	return regcache_sync(sai->regmap);
+}
+
 static int fsl_sai_runtime_suspend(struct device *dev)
 {
 	struct fsl_sai *sai = dev_get_drvdata(dev);
+
+	regcache_cache_only(sai->regmap, true);
+
+	/* Once we have working busfreq */
+	/* release_bus_freq(BUS_FREQ_AUDIO); */
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_PM_SLEEP
+static int fsl_sai_suspend(struct device *dev)
+{
+	struct fsl_sai *sai = dev_get_drvdata(dev);
+
+	if (sai->mclk_streams & BIT(SNDRV_PCM_STREAM_CAPTURE))
+		clk_disable_unprepare(sai->mclk_clk[sai->mclk_id[0]]);
+
+	if (sai->mclk_streams & BIT(SNDRV_PCM_STREAM_PLAYBACK))
+		clk_disable_unprepare(sai->mclk_clk[sai->mclk_id[1]]);
+
+	clk_disable_unprepare(sai->bus_clk);
 
 	regcache_cache_only(sai->regmap, true);
 	regcache_mark_dirty(sai->regmap);
@@ -955,7 +1001,7 @@ static int fsl_sai_runtime_suspend(struct device *dev)
 	return 0;
 }
 
-static int fsl_sai_runtime_resume(struct device *dev)
+static int fsl_sai_resume(struct device *dev)
 {
 	struct fsl_sai *sai = dev_get_drvdata(dev);
 
@@ -971,9 +1017,9 @@ static int fsl_sai_runtime_resume(struct device *dev)
 
 static const struct dev_pm_ops fsl_sai_pm_ops = {
 	SET_RUNTIME_PM_OPS(fsl_sai_runtime_suspend,
-			   fsl_sai_runtime_resume, NULL)
-	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
-				pm_runtime_force_resume)
+			   fsl_sai_runtime_resume,
+			   NULL)
+	SET_SYSTEM_SLEEP_PM_OPS(fsl_sai_suspend, fsl_sai_resume)
 };
 
 static struct platform_driver fsl_sai_driver = {
