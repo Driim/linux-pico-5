@@ -47,6 +47,7 @@ void cpufreq_cooling_unregister(struct thermal_cooling_device *cdev)
 }
 #endif	/* CONFIG_CPU_FREQ_THERMAL */
 
+
 #if defined(CONFIG_THERMAL_OF) && defined(CONFIG_CPU_THERMAL)
 /**
  * of_cpufreq_cooling_register - create cpufreq cooling device based on DT.
@@ -61,5 +62,12 @@ of_cpufreq_cooling_register(struct cpufreq_policy *policy)
 	return NULL;
 }
 #endif /* defined(CONFIG_THERMAL_OF) && defined(CONFIG_CPU_THERMAL) */
+
+
+#ifdef CONFIG_CPU_IDLE_THERMAL
+extern void __init cpuidle_cooling_register(void);
+#else /* CONFIG_CPU_IDLE_THERMAL */
+static inline void __init cpuidle_cooling_register(void) { }
+#endif /* CONFIG_CPU_IDLE_THERMAL */
 
 #endif /* __CPU_COOLING_H__ */
