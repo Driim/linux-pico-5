@@ -19,7 +19,7 @@
 
 struct cpufreq_policy;
 
-#ifdef CONFIG_CPU_THERMAL
+#ifdef CONFIG_CPU_FREQ_THERMAL
 /**
  * cpufreq_cooling_register - function to create cpufreq cooling device.
  * @policy: cpufreq policy.
@@ -33,7 +33,7 @@ cpufreq_cooling_register(struct cpufreq_policy *policy);
  */
 void cpufreq_cooling_unregister(struct thermal_cooling_device *cdev);
 
-#else /* !CONFIG_CPU_THERMAL */
+#else /* !CONFIG_CPU_FREQ_THERMAL */
 static inline struct thermal_cooling_device *
 cpufreq_cooling_register(struct cpufreq_policy *policy)
 {
@@ -45,7 +45,7 @@ void cpufreq_cooling_unregister(struct thermal_cooling_device *cdev)
 {
 	return;
 }
-#endif	/* CONFIG_CPU_THERMAL */
+#endif	/* CONFIG_CPU_FREQ_THERMAL */
 
 #if defined(CONFIG_THERMAL_OF) && defined(CONFIG_CPU_THERMAL)
 /**

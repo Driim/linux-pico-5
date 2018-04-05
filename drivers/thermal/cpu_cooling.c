@@ -22,6 +22,7 @@
 
 #include <trace/events/thermal.h>
 
+#ifdef CONFIG_CPU_FREQ_THERMAL
 /*
  * Cooling state <-> CPUFreq frequency
  *
@@ -801,3 +802,4 @@ void cpufreq_cooling_unregister(struct thermal_cooling_device *cdev)
 	kfree(cpufreq_cdev);
 }
 EXPORT_SYMBOL_GPL(cpufreq_cooling_unregister);
+#endif /* CONFIG_CPU_FREQ_THERMAL */
