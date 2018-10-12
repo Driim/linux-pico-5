@@ -297,6 +297,56 @@ static int submit_reloc(struct etnaviv_gem_submit *submit, void *stream,
 	return 0;
 }
 
+
+/* process the bo reloc's and patch up the BOs as needed: */
+static int submit_bo_reloc(struct etnaviv_gem_submit *submit,
+			   const struct drm_etnaviv_gem_submit_bo_reloc *bo_relocs,
+			   u32 nr_bo_relocs)
+{
+	int i;
+
+	for (i = 0; i < nr_bo_relocs; i++) {
+		const struct drm_etnaviv_gem_submit_bo_reloc *r = bo_relocs + i;
+		struct etnaviv_gem_submit_bo *patch_bo;
+		struct etnaviv_gem_submit_bo *bo;
+		struct etnaviv_gem_object *obj;
+		u32 patch_off;
+		u32 *vaddr;
+		int ret;
+
+		if (unlikely(r->flags)) {
+			DRM_ERROR("invalid bo reloc flags\n");
+			return -EINVAL;
+		}
+
+		if (r->patch_offset % 4) {
+			DRM_ERROR("non-aligned reloc offset: %u\n",
+				  r->patch_offset);
+			return -EINVAL;
+		}
+
+		/* offset in dwords */
+		patch_off = r->patch_offset / 4;
+
+		ret = submit_bo(submit, r->reloc_idx, &bo);
+		if (ret)
+			return ret;
+
+		ret = submit_bo(submit, r->patch_idx, &patch_bo);
+		if (ret)
+			return ret;
+
+		obj = patch_bo->obj;
+		vaddr = etnaviv_gem_vmap(&obj->base);
+		/* FIXME: There are no checks here and never will be,
+		 * this is just a hack */
+		vaddr += patch_off;
+		*vaddr = bo->mapping->iova + r->reloc_offset;
+	}
+	return 0;
+}
+
+
 static int submit_perfmon_validate(struct etnaviv_gem_submit *submit,
 		u32 exec_state, const struct drm_etnaviv_gem_submit_pmr *pmrs)
 {
@@ -398,6 +448,7 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
 	struct etnaviv_drm_private *priv = dev->dev_private;
 	struct drm_etnaviv_gem_submit *args = data;
 	struct drm_etnaviv_gem_submit_reloc *relocs;
+	struct drm_etnaviv_gem_submit_bo_reloc *bo_relocs;
 	struct drm_etnaviv_gem_submit_pmr *pmrs;
 	struct drm_etnaviv_gem_submit_bo *bos;
 	struct etnaviv_gem_submit *submit;
@@ -439,6 +490,7 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
 	 */
 	bos = kvmalloc_array(args->nr_bos, sizeof(*bos), GFP_KERNEL);
 	relocs = kvmalloc_array(args->nr_relocs, sizeof(*relocs), GFP_KERNEL);
+	bo_relocs = kvmalloc_array(args->nr_bo_relocs, sizeof(*bo_relocs), GFP_KERNEL);
 	pmrs = kvmalloc_array(args->nr_pmrs, sizeof(*pmrs), GFP_KERNEL);
 	stream = kvmalloc_array(1, args->stream_size, GFP_KERNEL);
 	if (!bos || !relocs || !pmrs || !stream) {
@@ -455,6 +507,13 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
 
 	ret = copy_from_user(relocs, u64_to_user_ptr(args->relocs),
 			     args->nr_relocs * sizeof(*relocs));
+	if (ret) {
+		ret = -EFAULT;
+		goto err_submit_cmds;
+	}
+
+	ret = copy_from_user(bo_relocs, u64_to_user_ptr(args->bo_relocs),
+			     args->nr_bo_relocs * sizeof(*bo_relocs));
 	if (ret) {
 		ret = -EFAULT;
 		goto err_submit_cmds;
@@ -523,6 +582,10 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
 
 	ret = submit_reloc(submit, stream, args->stream_size / 4,
 			   relocs, args->nr_relocs);
+	if (ret)
+		goto err_submit_objects;
+
+	ret = submit_bo_reloc(submit, bo_relocs, args->nr_bo_relocs);
 	if (ret)
 		goto err_submit_objects;
 
