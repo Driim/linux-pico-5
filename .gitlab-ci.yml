@@ -1,0 +1,30 @@
+variables:
+  DEPS: >
+    build-essential gcc-aarch64-linux-gnu make device-tree-compiler
+    bison flex bc libssl-dev
+
+before_script:
+  - export DEBIAN_FRONTEND=noninteractive
+  - apt-get -y update
+  - apt-get -y install $DEPS
+
+.tags: &tags
+  tags:
+    - librem5
+
+build:aarch64:
+  <<: *tags
+  stage: build
+  variables:
+    CROSS_BUILD: "ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-"
+  script:
+    - cp arch/arm64/configs/librem5-devkit_defconfig .config
+    - make      ${CROSS_BUILD} olddefconfig
+    - make -j 4 ${CROSS_BUILD} Image dtbs modules
+    - make -j 4 ${CROSS_BUILD} INSTALL_MOD_PATH=modules/ modules_install
+  artifacts:
+    paths:
+      - arch/arm64/boot/Image
+      - arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dtb
+      - modules/
+    expire_in: 1 week
