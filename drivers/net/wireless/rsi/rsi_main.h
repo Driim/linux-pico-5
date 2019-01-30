@@ -431,6 +431,7 @@ struct rsi_common {
 	bool reinit_hw;
 	struct completion wlan_init_completion;
 	bool debugfs_bgscan;
+	bool hwscan_en;
 #ifdef CONFIG_RSI_WOW
 	u8 wow_flags;
 #endif
