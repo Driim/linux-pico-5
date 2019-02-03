@@ -1,0 +1,13 @@
+config DRM_IMX_NWL_DSI
+	tristate "Support for Northwest Logic MIPI DSI Host controller"
+	depends on DRM && (ARCH_MXC || ARCH_MULTIPLATFORM || COMPILE_TEST)
+	depends on COMMON_CLK
+	depends on MFD_SYSCON
+	depends on OF
+	select DRM_MIPI_DSI
+	select DRM_PANEL
+	select GENERIC_PHY_MIPI_DPHY
+	help
+	  This enables the Northwest Logic MIPI DSI Host controller as
+	  found on NXP's i.MX8 Processors.
+
