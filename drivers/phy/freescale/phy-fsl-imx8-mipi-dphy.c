@@ -276,7 +276,10 @@ static int mixel_dphy_config_from_opts(struct phy *phy,
 	else
 		cfg->rxhs_settle = 0x07;
 
-	dev_dbg(&phy->dev, "phy_config: %u %u %u %u %u %u %u\n",
+	dev_dbg(&phy->dev, "hs_prepare: %u, clk_prepare: %u, "
+		"hs_zero: %u, clk_zero: %u, "
+		"hs_trail: %u, clk_trail: %u, "
+		"rxhs_settle: %u\n",
 		cfg->m_prg_hs_prepare, cfg->mc_prg_hs_prepare,
 		cfg->m_prg_hs_zero, cfg->mc_prg_hs_zero,
 		cfg->m_prg_hs_trail, cfg->mc_prg_hs_trail,
