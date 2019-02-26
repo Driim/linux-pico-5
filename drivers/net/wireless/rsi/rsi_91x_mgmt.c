@@ -628,12 +628,6 @@ static void rsi_set_default_parameters(struct rsi_common *common)
 	common->country_code = 840; /* Default US */
 	common->wlan_rf_power_mode = 0;
 	common->bt_rf_power_mode = 0;
-#ifndef CONFIG_RSI_PURISM
-	common->obm_ant_sel_val = 2;
-#else
-	common->obm_ant_sel_val = 3;
-#endif
-	common->antenna_diversity = 0;
 	common->tx_power = RSI_TXPOWER_MAX;
 	common->dtim_cnt = 2;
 	common->beacon_interval = 100;
