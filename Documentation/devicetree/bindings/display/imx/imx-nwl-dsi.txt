@@ -1,0 +1,92 @@
+Northwest Logic MIPI-DSI on imx SoCs
+=====================================
+
+NWL MIPI-DSI host controller found in i.MX8 platforms. This is an
+encoder/connector for the for the NWL MIPI-DSI host.
+
+Required properties:
+- compatible: 		"fsl,<chip>-mipi-dsi"
+	The following strings are expected:
+			"fsl,imx8mq-mipi-dsi_drm"
+- reg: 			the register range of the MIPI-DSI controller
+- interrupts: 		the interrupt number for this module
+- clock, clock-names: 	phandles to the MIPI-DSI clocks
+	The following clocks are expected on all platforms:
+		"core"    - DSI core clock
+		"tx_esc"  - TX_ESC clock (used in escape mode)
+		"rx_esc"  - RX_ESC clock (used in escape mode)
+		"phy_ref" - PHY_REF clock. Clock is managed by the phy. Only
+                            used to read the clock rate.
+- assigned-clocks:	phandles to clocks that require initial configuration
+- assigned-clock-rates:	rates of the clocks that require initial configuration
+	The following clocks need to have an initial configuration:
+	"tx_esc" (20 MHz) and "rx_esc" (80 Mhz).
+- phys: 		phandle to the phy module representing the DPHY
+			inside the MIPI-DSI IP block
+- phy-names: 		should be "dphy"
+
+Optional properties:
+- power-domains 	phandle to the power domain
+- src			phandle to the system reset controller (required on
+			i.MX8MQ)
+- mux-sel		phandle to the MUX register set (required on i.MX8MQ)
+- assigned-clock-parents phandles to parent clocks that needs to be assigned as
+			parents to clocks defined in assigned-clocks
+
+Example:
+	mipi_dsi: mipi_dsi@32A00000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "fsl,imx8mq-nwl-dsi";
+		reg = <0x30A00000 0x300>;
+		clocks = <&clk IMX8MQ_CLK_DSI_CORE_DIV>,
+			 <&clk IMX8MQ_CLK_DSI_AHB_DIV>,
+		         <&clk IMX8MQ_CLK_DSI_IPG_DIV>,
+			 <&clk IMX8MQ_CLK_DSI_PHY_REF_DIV>;
+		clock-names = "core", "rx_esc", "tx_esc", "phy_ref";
+		assigned-clocks = <&clk IMX8MQ_CLK_DSI_AHB_SRC>,
+				  <&clk IMX8MQ_CLK_DSI_CORE_SRC>,
+				  <&clk IMX8MQ_VIDEO_PLL1_REF_SEL>,
+				  <&clk IMX8MQ_VIDEO_PLL1>,
+				  <&clk IMX8MQ_CLK_DSI_IPG_DIV>,
+				  <&clk IMX8MQ_CLK_DSI_AHB_DIV>;
+		assigned-clock-parents = <&clk IMX8MQ_SYS1_PLL_80M>,
+					 <&clk IMX8MQ_SYS1_PLL_266M>,
+					 <&clk IMX8MQ_CLK_25M>,
+					 <&clk IMX8MQ_CLK_DSI_AHB_DIV>;
+		assigned-clock-rates = <80000000>,
+				       <266000000>,
+				       <0>,
+				       <599999999>,
+				       <20000000>,
+				       <80000000>;
+		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&mipi_pd>;
+		src = <&src>;
+		mux-sel = <&gpr>;
+		phys = <&mipi_dsi_phy>;
+		phy-names = "dphy";
+		status = "okay";
+
+		panel@0 {
+			compatible = "...";
+			port {
+				panel_in: endpoint {
+				       remote-endpoint = <&mipi_dsi_out>;
+				};
+			};
+		};
+
+		ports {
+			port@0 {
+				mipi_dsi_in: endpoint {
+				       remote-endpoint = <&dcss_disp0_mipi_dsi>;
+			       };
+			};
+			port@1 {
+				mipi_dsi_out: endpoint {
+					remote-endpoint = <&panel_in>;
+				};
+		       };
+		};
+	};
