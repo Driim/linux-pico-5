@@ -942,6 +942,30 @@
 				interrupt-controller;
 				#interrupt-cells = <1>;
 			};
+
+			dcss: dcss@0x32e00000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "nxp,imx8mq-dcss";
+				reg = <0x32e00000 0x30000>;
+				interrupts = <3>,
+					     <4>,
+					     <5>,
+					     <6>,
+					     <8>;
+				interrupt-names = "dpr_dc_ch0",
+						  "dpr_dc_ch1",
+						  "dpr_dc_ch2",
+						  "ctx_ld",
+						  "dtg_prg1";
+				interrupt-parent = <&irqsteer>;
+				status = "disabled";
+			};
+		};
+
+		imx_disp_sub: display-subsystem {
+			compatible = "fsl,imx-display-subsystem";
+			//ports = <&dcss_disp0>;
 		};
 
 		gpu: gpu@38000000 {

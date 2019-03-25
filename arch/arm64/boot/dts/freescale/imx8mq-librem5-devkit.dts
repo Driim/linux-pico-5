@@ -980,3 +980,72 @@
 	fsl,ext-reset-output;
 	status = "okay";
 };
+
+&dcss {
+	disp-dev = "mipi_disp";
+	clocks = <&clk IMX8MQ_CLK_DISP_APB_ROOT>,
+		 <&clk IMX8MQ_CLK_DISP_AXI_ROOT>,
+		 <&clk IMX8MQ_CLK_DISP_RTRM_ROOT>,
+		 <&clk IMX8MQ_CLK_DC_PIXEL>,
+		 <&clk IMX8MQ_CLK_DUMMY>,
+		 <&clk IMX8MQ_CLK_DISP_DTRC>;
+	clock-names = "apb", "axi", "rtrm", "pix_div", "pix_out", "dtrc";
+	assigned-clocks = <&clk IMX8MQ_CLK_DC_PIXEL>,
+			  <&clk IMX8MQ_CLK_DISP_AXI>,
+			  <&clk IMX8MQ_CLK_DISP_RTRM>,
+			  <&clk IMX8MQ_CLK_DISP_RTRM_ROOT>,
+	                  <&clk IMX8MQ_VIDEO_PLL1_BYPASS>;
+	assigned-clock-parents = <&clk IMX8MQ_VIDEO_PLL1_OUT>,
+				 <&clk IMX8MQ_SYS1_PLL_800M>,
+				 <&clk IMX8MQ_SYS1_PLL_800M>,
+				 <&clk IMX8MQ_CLK_DISP_RTRM>,
+				 <&clk IMX8MQ_VIDEO_PLL1>;
+	assigned-clock-rates = <75000000>,
+			       <800000000>,
+			       <400000000>,
+			       <400000000>,
+	                       <0>;
+	status = "okay";
+
+	dcss_disp0: port@0 {
+		dcss_disp0_mipi_dsi: endpoint {
+			remote-endpoint = <&mipi_dsi_in>;
+		};
+	};
+};
+
+&dphy {
+	status = "okay";
+};
+
+&mipi_dsi {
+	status = "okay";
+	panel@0 {
+		compatible = "rocktech,jh057n00900";
+		reg = <0>;
+		backlight = <&backlight_dsi>;
+		reset-gpios = <&gpio3 13 GPIO_ACTIVE_LOW>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mipi_dsi_out>;
+			};
+		};
+	};
+
+	ports {
+		port@0 {
+			mipi_dsi_in: endpoint {
+				remote-endpoint = <&dcss_disp0_mipi_dsi>;
+			};
+		};
+		port@1 {
+			mipi_dsi_out: endpoint {
+				remote-endpoint = <&panel_in>;
+			};
+		};
+	};
+};
+
+&imx_disp_sub {
+	ports = <&dcss_disp0>;
+};
