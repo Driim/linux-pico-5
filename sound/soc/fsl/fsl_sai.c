@@ -2,8 +2,7 @@
 //
 // Freescale ALSA SoC Digital Audio Interface (SAI) driver.
 //
-// Copyright 2012-2015 Freescale Semiconductor, Inc.
-
+// Copyright 2012-2016 Freescale Semiconductor, Inc.
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/dmaengine.h>
@@ -97,6 +96,8 @@ static const struct snd_pcm_hw_constraint_list fsl_sai_rate_constraints = {
 	.count = ARRAY_SIZE(fsl_sai_rates),
 	.list = fsl_sai_rates,
 };
+
+extern int imx_pcm_platform_register(struct device *dev);
 
 static irqreturn_t fsl_sai_isr(int irq, void *devid)
 {
@@ -1107,6 +1108,8 @@ static int fsl_sai_probe(struct platform_device *pdev)
 				   MCLK_DIR(index));
 	}
 
+	sai->dma_params_rx.filter_data = "rx";
+	sai->dma_params_tx.filter_data = "tx";
 	sai->dma_params_rx.addr = res->start + FSL_SAI_RDR0;
 	sai->dma_params_tx.addr = res->start + FSL_SAI_TDR0;
 	sai->dma_params_rx.maxburst = FSL_SAI_MAXBURST_RX;
@@ -1126,8 +1129,8 @@ static int fsl_sai_probe(struct platform_device *pdev)
 	if (of_property_read_u32(np, "fsl,dma-buffer-size", &buffer_size))
 		buffer_size = IMX_SAI_DMABUF_SIZE;
 
-	if (sai->sai_on_imx)
-		return imx_pcm_dma_init(pdev, buffer_size);
+	if (sai->soc->imx)
+		return imx_pcm_platform_register(&pdev->dev);
 	else
 		return devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
 }

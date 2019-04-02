@@ -126,14 +126,12 @@ static int imx_pcm_preallocate_dma_buffer(struct snd_pcm_substream *substream,
 	struct device *dev)
 {
 	size_t size = imx_pcm_hardware.buffer_bytes_max;
-	int ret;
 
 	snd_pcm_lib_preallocate_pages(substream,
 				SNDRV_DMA_TYPE_DEV_IRAM,
 				dev,
 				size,
 				size);
-
 	return 0;
 }
 
@@ -162,7 +160,7 @@ static int imx_pcm_open(struct snd_pcm_substream *substream)
 		struct dma_chan *chan;
 
 		chan = dma_request_slave_channel(rtd->cpu_dai->dev,
-						 dma_data->chan_name);
+						 dma_data->filter_data);
 		ret = snd_dmaengine_pcm_open(substream, chan);
 		if (ret)
 			return ret;

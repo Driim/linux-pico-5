@@ -827,7 +827,6 @@ static int fsl_esai_probe(struct platform_device *pdev)
 	const uint32_t *iprop;
 	void __iomem *regs;
 	int irq, ret;
-	u32 buffer_size;
 	unsigned long irqflag = 0;
 
 	esai_priv = devm_kzalloc(&pdev->dev, sizeof(*esai_priv), GFP_KERNEL);

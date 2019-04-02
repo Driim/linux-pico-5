@@ -364,6 +364,8 @@ struct dma_slave_config {
 	u32 dst_port_window_size;
 	bool device_fc;
 	unsigned int slave_id;
+	unsigned int dst_fifo_num;
+	unsigned int src_fifo_num;
 };
 
 /**
