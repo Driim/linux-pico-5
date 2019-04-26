@@ -432,9 +432,10 @@
 				reg = <0x30030000 0x10000>;
 				interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&clk IMX8MQ_CLK_SAI6_IPG>,
-				     <&clk IMX8MQ_CLK_SAI6_ROOT>,
-				     <&clk IMX8MQ_CLK_DUMMY>, <&clk IMX8MQ_CLK_DUMMY>;
-				clock-names = "bus", "mclk1", "mclk2", "mclk3";
+					<&clk IMX8MQ_CLK_SAI6_IPG>,
+					<&clk IMX8MQ_CLK_SAI6_ROOT>,
+					<&clk IMX8MQ_CLK_DUMMY>, <&clk IMX8MQ_CLK_DUMMY>;
+				clock-names = "bus", "mclk0", "mclk1", "mclk2", "mclk3";
 				dmas = <&sdma2 4 24 0>, <&sdma2 5 24 0>;
 				dma-names = "rx", "tx";
 				fsl,shared-interrupt;
@@ -735,9 +736,10 @@
 				reg = <0x308b0000 0x10000>;
 				interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&clk IMX8MQ_CLK_SAI2_IPG>,
-					 <&clk IMX8MQ_CLK_SAI2_ROOT>,
-					 <&clk IMX8MQ_CLK_DUMMY>, <&clk IMX8MQ_CLK_DUMMY>;
-				clock-names = "bus", "mclk1", "mclk2", "mclk3";
+					<&clk IMX8MQ_CLK_SAI2_IPG>,
+					<&clk IMX8MQ_CLK_SAI2_ROOT>,
+					<&clk IMX8MQ_CLK_DUMMY>, <&clk IMX8MQ_CLK_DUMMY>;
+				clock-names = "bus", "mclk0", "mclk1", "mclk2", "mclk3";
 				dmas = <&sdma1 10 24 0>, <&sdma1 11 24 0>;
 				dma-names = "rx", "tx";
 				status = "disabled";
