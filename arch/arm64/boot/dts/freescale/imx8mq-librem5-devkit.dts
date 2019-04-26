@@ -33,7 +33,7 @@
 	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_gpio_keys>;
+		pinctrl-0 = <&pinctrl_gpio_keys>, <&pinctrl_wwan_in>;
 
 		btn1 {
 			label = "VOL_UP";
@@ -54,6 +54,15 @@
 			gpios = <&gpio3 20 GPIO_ACTIVE_LOW>;
 			wakeup-source;
 			linux,code = <KEY_HP>;
+		};
+
+		wwan_wake {
+			label = "WWAN_WAKE";
+			gpios = <&gpio3 8 GPIO_ACTIVE_LOW>;
+			interrupt-parent = <&gpio3>;
+			interrupts = <8 GPIO_ACTIVE_LOW>;
+			wakeup-source;
+			linux,code = <KEY_PHONE>;
 		};
 	};
 
@@ -183,9 +192,11 @@
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "SIMCom SIM7100";
 		simple-audio-card,format = "dsp_a";
+
 		simple-audio-card,cpu {
 			sound-dai = <&sai6>;
 		};
+
 		telephony_link_master: simple-audio-card,codec {
 			sound-dai = <&sim7100_codec>;
 			frame-master;
@@ -780,11 +791,19 @@
 		>;
 	};
 
-	pinctrl_wwan: wwangrp {
+	pinctrl_wwan_in: wwaningrp {
 		fsl,pins = <
-			MX8MQ_IOMUXC_NAND_CE3_B_GPIO3_IO4	0x09 /* nWWAN_DISABLE */
-			MX8MQ_IOMUXC_NAND_DATA02_GPIO3_IO8	0x80 /* nWoWWAN */
-			MX8MQ_IOMUXC_NAND_DATA03_GPIO3_IO9	0x19 /* WWAN_RESET */
+		/* nWoWWAN */
+		MX8MQ_IOMUXC_NAND_DATA02_GPIO3_IO8	0x80
+		>;
+	};
+
+	pinctrl_wwan_out: wwanoutgrp {
+		fsl,pins = <
+		/* nWWAN_DISABLE */
+		MX8MQ_IOMUXC_NAND_CE3_B_GPIO3_IO4	0x09
+		/* WWAN_RESET */
+		MX8MQ_IOMUXC_NAND_DATA03_GPIO3_IO9	0x19
 		>;
 	};
 };
