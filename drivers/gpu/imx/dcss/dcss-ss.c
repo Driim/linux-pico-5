@@ -158,15 +158,6 @@ void dcss_ss_exit(struct dcss_soc *dcss)
 
 void dcss_ss_subsam_set(struct dcss_soc *dcss, u32 pix_format)
 {
-	if (pix_format == DRM_FORMAT_P010) {
-		dcss_ss_write(dcss->ss_priv, 0x21612161, DCSS_SS_COEFF);
-		dcss_ss_write(dcss->ss_priv, 2, DCSS_SS_MODE);
-		dcss_ss_write(dcss->ss_priv, 0x03c00040, DCSS_SS_CLIP_CB);
-		dcss_ss_write(dcss->ss_priv, 0x03c00040, DCSS_SS_CLIP_CR);
-
-		return;
-	}
-
 	dcss_ss_write(dcss->ss_priv, 0x41614161, DCSS_SS_COEFF);
 	dcss_ss_write(dcss->ss_priv, 0, DCSS_SS_MODE);
 	dcss_ss_write(dcss->ss_priv, 0x03ff0000, DCSS_SS_CLIP_CB);

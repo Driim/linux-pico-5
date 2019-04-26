@@ -98,7 +98,6 @@ enum dcss_color_space dcss_drm_fourcc_to_colorspace(u32 drm_fourcc)
 	case DRM_FORMAT_NV21:
 	case DRM_FORMAT_NV16:
 	case DRM_FORMAT_NV61:
-	case DRM_FORMAT_P010:
 		return DCSS_COLORSPACE_YUV;
 	default:
 		return DCSS_COLORSPACE_UNKNOWN;
