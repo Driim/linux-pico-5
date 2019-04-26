@@ -1,0 +1,9 @@
+config IMX_DCSS_CORE
+	tristate "i.MX DCSS core support"
+        depends on (ARCH_MXC || ARCH_MULTIPLATFORM || COMPILE_TEST)
+	depends on RESET_CONTROLLER
+	select IMX_IRQSTEER
+	help
+	  Choose this if you have a Freescale i.MX8MQ system and want to use the
+	  Display Controller Sub System. This option only enables DCSS base
+	  support.
