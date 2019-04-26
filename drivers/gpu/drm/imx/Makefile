@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 
-imxdrm-objs := imx-drm-core.o ipuv3-crtc.o ipuv3-plane.o
+imxdrm-objs := imx-drm-core.o
 
 obj-$(CONFIG_DRM_IMX) += imxdrm.o
 
