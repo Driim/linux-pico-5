@@ -579,10 +579,6 @@ static u32 dcss_hdr10_get_bpc(u32 pix_format)
 		bpc = 8;
 		break;
 
-	case DRM_FORMAT_P010:
-		bpc = 10;
-		break;
-
 	default:
 		drm_fb_get_bpp_depth(pix_format, &depth, &bpp);
 		bpc = depth == 30 ? 10 : 8;

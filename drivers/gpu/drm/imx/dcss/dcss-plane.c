@@ -54,13 +54,9 @@ static const u32 dcss_common_formats[] = {
 	/* YUV420 */
 	DRM_FORMAT_NV12,
 	DRM_FORMAT_NV21,
-	DRM_FORMAT_P010,
 };
 
 static const u64 dcss_video_format_modifiers[] = {
-	DRM_FORMAT_MOD_VSI_G1_TILED,
-	DRM_FORMAT_MOD_VSI_G2_TILED,
-	DRM_FORMAT_MOD_VSI_G2_TILED_COMPRESSED,
 	DRM_FORMAT_MOD_INVALID,
 };
 
@@ -144,12 +140,6 @@ static bool dcss_plane_format_mod_supported(struct drm_plane *plane,
 		break;
 	case DRM_PLANE_TYPE_OVERLAY:
 		switch (format) {
-		case DRM_FORMAT_NV12:
-		case DRM_FORMAT_NV21:
-		case DRM_FORMAT_P010:
-			return modifier == DRM_FORMAT_MOD_VSI_G1_TILED ||
-			       modifier == DRM_FORMAT_MOD_VSI_G2_TILED ||
-			       modifier == DRM_FORMAT_MOD_VSI_G2_TILED_COMPRESSED;
 		default:
 			return false;
 		}
@@ -292,8 +282,7 @@ static void dcss_plane_atomic_set_base(struct dcss_plane *dcss_plane)
 	case DRM_PLANE_TYPE_OVERLAY:
 		if (!modifiers_present ||
 		    (pix_format != DRM_FORMAT_NV12 &&
-		     pix_format != DRM_FORMAT_NV21 &&
-		     pix_format != DRM_FORMAT_P010)) {
+		     pix_format != DRM_FORMAT_NV21)) {
 			dcss_dtrc_bypass(dcss_plane->dcss, dcss_plane->ch_num);
 			return;
 		}
@@ -439,13 +428,8 @@ static void dcss_plane_atomic_update(struct drm_plane *plane,
 			 src_w, src_h, adj_w, adj_h);
 	dcss_plane_atomic_set_base(dcss_plane);
 
-	if (fb->modifier == DRM_FORMAT_MOD_VSI_G2_TILED_COMPRESSED) {
-		scaler_w = src.x1 ? adj_w : src_w;
-		scaler_h = src.y1 ? adj_h : src_h;
-	} else {
-		scaler_w = src_w;
-		scaler_h = src_h;
-	}
+	scaler_w = src_w;
+	scaler_h = src_h;
 
 	dcss_scaler_setup(dcss_plane->dcss, dcss_plane->ch_num,
 			  pixel_format, scaler_w, scaler_h,

@@ -304,8 +304,7 @@ static bool dcss_dtg_global_alpha_needed(u32 pix_format)
 	       pix_format == DRM_FORMAT_YUYV	    ||
 	       pix_format == DRM_FORMAT_YVYU	    ||
 	       pix_format == DRM_FORMAT_NV12	    ||
-	       pix_format == DRM_FORMAT_NV21	    ||
-	       pix_format == DRM_FORMAT_P010;
+	       pix_format == DRM_FORMAT_NV21;
 }
 
 bool dcss_dtg_global_alpha_changed(struct dcss_soc *dcss, int ch_num,
@@ -352,11 +351,6 @@ EXPORT_SYMBOL(dcss_dtg_plane_alpha_set);
 void dcss_dtg_css_set(struct dcss_soc *dcss, u32 pix_format)
 {
 	struct dcss_dtg_priv *dtg = dcss->dtg_priv;
-
-	if (pix_format == DRM_FORMAT_P010) {
-		dtg->control_status &= ~CSS_PIX_COMP_SWAP_MASK;
-		return;
-	}
 
 	dtg->control_status |=
 			(0x5 << CSS_PIX_COMP_SWAP_POS) & CSS_PIX_COMP_SWAP_MASK;
