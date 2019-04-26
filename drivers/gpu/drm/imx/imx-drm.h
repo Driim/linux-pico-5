@@ -9,7 +9,6 @@ struct drm_connector;
 struct drm_device;
 struct drm_display_mode;
 struct drm_encoder;
-struct drm_fbdev_cma;
 struct drm_framebuffer;
 struct drm_plane;
 struct imx_drm_crtc;
@@ -19,7 +18,6 @@ struct imx_drm_device {
 	struct drm_device			*drm;
 	struct imx_drm_crtc			*crtc[MAX_CRTC];
 	unsigned int				pipes;
-	struct drm_fbdev_cma			*fbhelper;
 	struct drm_atomic_state			*state;
 };
 

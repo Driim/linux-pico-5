@@ -46,13 +46,6 @@ static int legacyfb_depth = 16;
 module_param(legacyfb_depth, int, 0444);
 #endif
 
-static void imx_drm_driver_lastclose(struct drm_device *drm)
-{
-	struct imx_drm_device *imxdrm = drm->dev_private;
-
-	drm_fbdev_cma_restore_mode(imxdrm->fbhelper);
-}
-
 static int imx_drm_enable_vblank(struct drm_device *drm, unsigned int pipe)
 {
 	struct imx_drm_device *imxdrm = drm->dev_private;
@@ -204,7 +197,6 @@ static const struct drm_ioctl_desc imx_drm_ioctls[] = {
 static struct drm_driver imx_drm_driver = {
 	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
 				  DRIVER_ATOMIC,
-	.lastclose		= imx_drm_driver_lastclose,
 	.gem_free_object_unlocked = drm_gem_cma_free_object,
 	.gem_vm_ops		= &drm_gem_cma_vm_ops,
 	.dumb_create		= drm_gem_cma_dumb_create,
@@ -360,7 +352,6 @@ static int imx_drm_bind(struct device *dev)
 	 * The fb helper takes copies of key hardware information, so the
 	 * crtcs/connectors/encoders must not change after this point.
 	 */
-#if IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION)
 	if (legacyfb_depth != 16 && legacyfb_depth != 32) {
 		dev_warn(dev, "Invalid legacyfb_depth.  Defaulting to 16bpp\n");
 		legacyfb_depth = 16;
@@ -369,29 +360,18 @@ static int imx_drm_bind(struct device *dev)
 	if (legacyfb_depth == 16 && has_dcss(dev))
 		legacyfb_depth = 32;
 
-	imxdrm->fbhelper = drm_fbdev_cma_init(drm, legacyfb_depth, MAX_CRTC);
-	if (IS_ERR(imxdrm->fbhelper)) {
-		ret = PTR_ERR(imxdrm->fbhelper);
-		imxdrm->fbhelper = NULL;
-		goto err_unbind;
-	}
-#endif
-
 	drm_kms_helper_poll_init(drm);
 
 	ret = drm_dev_register(drm, 0);
 	if (ret)
-		goto err_fbhelper;
+		goto err_poll_fini;
+
+	drm_fbdev_generic_setup(drm, legacyfb_depth);
 
 	return 0;
 
-err_fbhelper:
+err_poll_fini:
 	drm_kms_helper_poll_fini(drm);
-#if IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION)
-	if (imxdrm->fbhelper)
-		drm_fbdev_cma_fini(imxdrm->fbhelper);
-err_unbind:
-#endif
 	component_unbind_all(drm->dev, drm);
 err_kms:
 	drm_mode_config_cleanup(drm);
@@ -404,14 +384,10 @@ err_unref:
 static void imx_drm_unbind(struct device *dev)
 {
 	struct drm_device *drm = dev_get_drvdata(dev);
-	struct imx_drm_device *imxdrm = drm->dev_private;
 
 	drm_dev_unregister(drm);
 
 	drm_kms_helper_poll_fini(drm);
-
-	if (imxdrm->fbhelper)
-		drm_fbdev_cma_fini(imxdrm->fbhelper);
 
 	drm_mode_config_cleanup(drm);
 
