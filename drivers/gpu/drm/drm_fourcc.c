@@ -150,6 +150,83 @@ const char *drm_get_format_name(uint32_t format, struct drm_format_name_buf *buf
 }
 EXPORT_SYMBOL(drm_get_format_name);
 
+/**
+ * drm_fb_get_bpp_depth - get the bpp/depth values for format
+ * @format: pixel format (DRM_FORMAT_*)
+ * @depth: storage for the depth value
+ * @bpp: storage for the bpp value
+ *
+ * This only supports RGB formats here for compat with code that doesn't use
+ * pixel formats directly yet.
+ */
+void drm_fb_get_bpp_depth(uint32_t format, unsigned int *depth,
+			  int *bpp)
+{
+	struct drm_format_name_buf name_buf;
+
+	switch (format) {
+	case DRM_FORMAT_C8:
+	case DRM_FORMAT_RGB332:
+	case DRM_FORMAT_BGR233:
+		*depth = 8;
+		*bpp = 8;
+		break;
+	case DRM_FORMAT_XRGB1555:
+	case DRM_FORMAT_XBGR1555:
+	case DRM_FORMAT_RGBX5551:
+	case DRM_FORMAT_BGRX5551:
+	case DRM_FORMAT_ARGB1555:
+	case DRM_FORMAT_ABGR1555:
+	case DRM_FORMAT_RGBA5551:
+	case DRM_FORMAT_BGRA5551:
+		*depth = 15;
+		*bpp = 16;
+		break;
+	case DRM_FORMAT_RGB565:
+	case DRM_FORMAT_BGR565:
+		*depth = 16;
+		*bpp = 16;
+		break;
+	case DRM_FORMAT_RGB888:
+	case DRM_FORMAT_BGR888:
+		*depth = 24;
+		*bpp = 24;
+		break;
+	case DRM_FORMAT_XRGB8888:
+	case DRM_FORMAT_XBGR8888:
+	case DRM_FORMAT_RGBX8888:
+	case DRM_FORMAT_BGRX8888:
+		*depth = 24;
+		*bpp = 32;
+		break;
+	case DRM_FORMAT_XRGB2101010:
+	case DRM_FORMAT_XBGR2101010:
+	case DRM_FORMAT_RGBX1010102:
+	case DRM_FORMAT_BGRX1010102:
+	case DRM_FORMAT_ARGB2101010:
+	case DRM_FORMAT_ABGR2101010:
+	case DRM_FORMAT_RGBA1010102:
+	case DRM_FORMAT_BGRA1010102:
+		*depth = 30;
+		*bpp = 32;
+		break;
+	case DRM_FORMAT_ARGB8888:
+	case DRM_FORMAT_ABGR8888:
+	case DRM_FORMAT_RGBA8888:
+	case DRM_FORMAT_BGRA8888:
+		*depth = 32;
+		*bpp = 32;
+		break;
+	default:
+		drm_get_format_name(format, &name_buf);
+		DRM_DEBUG_KMS("unsupported pixel format %s\n", name_buf.str);
+		*depth = 0;
+		*bpp = 0;
+		break;
+	}
+}
+EXPORT_SYMBOL(drm_fb_get_bpp_depth);
+
 /*
  * Internal function to query information for a given format. See
  * drm_format_info() for the public API.
