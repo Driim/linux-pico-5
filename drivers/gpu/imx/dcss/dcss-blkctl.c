@@ -18,7 +18,6 @@
 #include <linux/of.h>
 #include <linux/delay.h>
 #include <linux/seq_file.h>
-#include <soc/imx8/soc.h>
 
 #include "dcss-prv.h"
 #include <video/imx-dcss.h>
@@ -117,7 +116,7 @@ int dcss_blkctl_init(struct dcss_soc *dcss, unsigned long blkctl_base)
 	if (!disp_dev || !strncmp(disp_dev, "hdmi_disp", 9))
 		blkctl->hdmi_output = true;
 
-	if (imx8_get_soc_revision() == B0_SILICON_ID)
+	//if (imx8_get_soc_revision() == B0_SILICON_ID)
 		blkctl->clk_setting = HDMI_MIPI_CLK_SEL;
 
 	dcss_blkctl_cfg(dcss);

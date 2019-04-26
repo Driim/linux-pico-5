@@ -18,7 +18,6 @@
 #include <linux/of_graph.h>
 #include <linux/clk.h>
 #include <linux/pm_runtime.h>
-#include <linux/busfreq-imx.h>
 #include <linux/pm_qos.h>
 #include <video/imx-dcss.h>
 
@@ -404,11 +403,13 @@ static void dcss_debugfs_init(struct dcss_soc *dcss)
 
 static void dcss_bus_freq(struct dcss_soc *dcss, bool en)
 {
+#ifdef HAVE_NXP_BUSFREQ
 	if (en && !dcss->bus_freq_req)
 		request_bus_freq(BUS_FREQ_HIGH);
 
 	if (!en && dcss->bus_freq_req)
 		release_bus_freq(BUS_FREQ_HIGH);
+#endif
 
 	dcss->bus_freq_req = en;
 }
