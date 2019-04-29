@@ -129,13 +129,15 @@ static int dcss_submodules_init(struct dcss_soc *dcss)
 	int ret;
 	u32 dcss_base = dcss->start_addr;
 
-	ret = dcss_blkctl_init(dcss, dcss_base + dcss->devtype->blkctl_ofs);
-	if (ret)
-		goto blkctl_err;
+	dev_err(dcss->dev, "%s %d.\n", __func__, __LINE__);
 
 	ret = dcss_ctxld_init(dcss, dcss_base + dcss->devtype->ctxld_ofs);
 	if (ret)
 		goto ctxld_err;
+
+	ret = dcss_blkctl_init(dcss, dcss_base + dcss->devtype->blkctl_ofs);
+	if (ret)
+		goto blkctl_err;
 
 	ret = dcss_dtrc_init(dcss, dcss_base + dcss->devtype->dtrc_ofs);
 	if (ret)
@@ -173,6 +175,7 @@ static int dcss_submodules_init(struct dcss_soc *dcss)
 	if (ret)
 		goto rdsrc_err;
 
+	dev_err(dcss->dev, "%s %d.: ret: %d\n", __func__, __LINE__, ret);
 	return 0;
 
 rdsrc_err:
@@ -202,11 +205,11 @@ dec400d_err:
 dtrc_err:
 	dcss_dtrc_exit(dcss);
 
-ctxld_err:
-	dcss_ctxld_exit(dcss);
-
 blkctl_err:
 	dcss_blkctl_exit(dcss);
+
+ctxld_err:
+	dcss_ctxld_exit(dcss);
 
 	return ret;
 }
