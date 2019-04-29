@@ -274,7 +274,7 @@ int dcss_ctxld_init(struct dcss_soc *dcss, unsigned long ctxld_base)
 	}
 
 	ret = dcss_ctxld_irq_config(priv);
-	if (!ret)
+	if (ret)
 		return ret;
 
 	dcss_ctxld_hw_cfg(dcss);
