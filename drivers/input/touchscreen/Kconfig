@@ -62,6 +62,7 @@ config TOUCHSCREEN_AD7877
 
 config TOUCHSCREEN_AD7879
 	tristate "Analog Devices AD7879-1/AD7889-1 touchscreen interface"
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you want to support a touchscreen interface using
 	  the AD7879-1/AD7889-1 controller.
@@ -97,6 +98,7 @@ config TOUCHSCREEN_ADC
 	tristate "Generic ADC based resistive touchscreen"
 	depends on IIO
 	select IIO_BUFFER_CB
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you want to use the generic ADC
 	  resistive touchscreen driver.
@@ -156,6 +158,7 @@ config TOUCHSCREEN_AUO_PIXCIR
 config TOUCHSCREEN_BU21013
 	tristate "BU21013 based touch panel controllers"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a bu21013 touchscreen connected to
 	  your system.
@@ -182,6 +185,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
 	depends on GPIOLIB || COMPILE_TEST
 	depends on I2C
 	depends on OF
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a ChipOne icn8318 based I2C touchscreen.
 
@@ -193,6 +197,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
 config TOUCHSCREEN_CHIPONE_ICN8505
 	tristate "chipone icn8505 touchscreen controller"
 	depends on I2C && ACPI
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a ChipOne icn8505 based I2C touchscreen.
 
@@ -216,6 +221,7 @@ config TOUCHSCREEN_CY8CTMG110
 
 config TOUCHSCREEN_CYTTSP_CORE
 	tristate "Cypress TTSP touchscreen"
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a touchscreen using controller from
 	  the Cypress TrueTouch(tm) Standard Product family connected
@@ -327,6 +333,7 @@ config TOUCHSCREEN_HAMPSHIRE
 config TOUCHSCREEN_EETI
 	tristate "EETI touchscreen panel support"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here to enable support for I2C connected EETI touch panels.
 
@@ -356,6 +363,7 @@ config TOUCHSCREEN_EGALAX_SERIAL
 config TOUCHSCREEN_EXC3000
 	tristate "EETI EXC3000 multi-touch panel support"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here to enable support for I2C connected EETI
 	  EXC3000 multi-touch panels.
@@ -380,6 +388,7 @@ config TOUCHSCREEN_GOODIX
 	tristate "Goodix I2C touchscreen"
 	depends on I2C
 	depends on GPIOLIB || COMPILE_TEST
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have the Goodix touchscreen (such as one
 	  installed in Onda v975w tablets) connected to your
@@ -394,6 +403,7 @@ config TOUCHSCREEN_GOODIX
 config TOUCHSCREEN_HIDEEP
 	tristate "HiDeep Touch IC"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a touchscreen using HiDeep.
 
@@ -405,6 +415,7 @@ config TOUCHSCREEN_HIDEEP
 config TOUCHSCREEN_ILI210X
 	tristate "Ilitek ILI210X based touchscreen"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a ILI210X based touchscreen
 	  controller. This driver supports models ILI2102,
@@ -444,6 +455,7 @@ config TOUCHSCREEN_S3C2410
 config TOUCHSCREEN_S6SY761
 	tristate "Samsung S6SY761 Touchscreen driver"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y if you have the Samsung S6SY761 driver
 
@@ -467,6 +479,7 @@ config TOUCHSCREEN_GUNZE
 config TOUCHSCREEN_EKTF2127
 	tristate "Elan eKTF2127 I2C touchscreen"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have an Elan eKTF2127 touchscreen
 	  connected to your system.
@@ -561,6 +574,7 @@ config TOUCHSCREEN_MCS5000
 config TOUCHSCREEN_MMS114
 	tristate "MELFAS MMS114 touchscreen"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have the MELFAS MMS114 touchscreen controller
 	  chip in your system.
@@ -687,6 +701,7 @@ config TOUCHSCREEN_PENMOUNT
 config TOUCHSCREEN_EDT_FT5X06
 	tristate "EDT FocalTech FT5x06 I2C Touchscreen support"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have an EDT "Polytouch" touchscreen based
 	  on the FocalTech FT5x06 family of controllers connected to
@@ -701,6 +716,7 @@ config TOUCHSCREEN_RASPBERRYPI_FW
 	tristate "Raspberry Pi's firmware base touch screen support"
 	depends on RASPBERRYPI_FIRMWARE || (RASPBERRYPI_FIRMWARE=n && COMPILE_TEST)
 	select INPUT_POLLDEV
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have the official Raspberry Pi 7 inch screen on
 	  your system.
@@ -776,6 +792,7 @@ config TOUCHSCREEN_UCB1400
 config TOUCHSCREEN_PIXCIR
 	tristate "PIXCIR I2C touchscreens"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a pixcir i2c touchscreen
 	  controller.
@@ -1063,6 +1080,7 @@ config TOUCHSCREEN_TSC_SERIO
 	  module will be called tsc40.
 
 config TOUCHSCREEN_TSC200X_CORE
+	depends on TOUCHSCREEN_PROPERTIES
 	tristate
 
 config TOUCHSCREEN_TSC2004
@@ -1147,6 +1165,7 @@ config TOUCHSCREEN_RM_TS
 config TOUCHSCREEN_SILEAD
 	tristate "Silead I2C touchscreen"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have the Silead touchscreen connected to
 	  your system.
@@ -1172,6 +1191,7 @@ config TOUCHSCREEN_SIS_I2C
 config TOUCHSCREEN_ST1232
 	tristate "Sitronix ST1232 or ST1633 touchscreen controllers"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you want to support the Sitronix ST1232
 	  or ST1633 touchscreen controller.
@@ -1185,6 +1205,7 @@ config TOUCHSCREEN_STMFTS
 	tristate "STMicroelectronics STMFTS touchscreen"
 	depends on I2C
 	depends on LEDS_CLASS
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you want support for STMicroelectronics
 	  STMFTS touchscreen.
@@ -1244,6 +1265,7 @@ config TOUCHSCREEN_SURFACE3_SPI
 config TOUCHSCREEN_SX8654
 	tristate "Semtech SX8654 touchscreen"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a Semtech SX8654 touchscreen controller.
 
@@ -1268,6 +1290,7 @@ config TOUCHSCREEN_TPS6507X
 config TOUCHSCREEN_ZET6223
 	tristate "Zeitec ZET6223 touchscreen driver"
 	depends on I2C
+	depends on TOUCHSCREEN_PROPERTIES
 	help
 	  Say Y here if you have a touchscreen using Zeitec ZET6223
 
