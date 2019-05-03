@@ -3,6 +3,7 @@
  * Copyright 2019 NXP.
  */
 
+#include <linux/arm-smccc.h>
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/of_address.h>
@@ -11,42 +12,82 @@
 #include <linux/platform_device.h>
 #include <linux/of.h>
 
+#define REV_A0				0x10
+#define REV_B0				0x20
 #define REV_B1				0x21
 
+#define IMX8MQ_SW_INFO_A0		0x800
+#define IMX8MQ_SW_INFO_B0		0x83C
 #define IMX8MQ_SW_INFO_B1		0x40
 #define IMX8MQ_SW_MAGIC_B1		0xff0055aa
 
 /* Same as ANADIG_DIGPROG_IMX7D */
 #define ANADIG_DIGPROG_IMX8MM	0x800
+#define FSL_SIP_GET_SOC_INFO		0xc2000006
 
 struct imx8_soc_data {
 	char *name;
 	u32 (*soc_revision)(void);
 };
 
-static u32 __init imx8mq_soc_revision(void)
+static u32 __init imx8mq_soc_revision_atf(void)
+{
+	struct arm_smccc_res res = { 0 };
+
+	arm_smccc_smc(FSL_SIP_GET_SOC_INFO, 0, 0, 0, 0, 0, 0, 0, &res);
+	/*
+	 * Bit [23:16] is the silicon ID
+	 * Bit[7:4] is the base layer revision,
+	 * Bit[3:0] is the metal layer revision
+	 * e.g. 0x10 stands for Tapeout 1.0
+	 */
+	return res.a0 & 0xff;
+}
+
+static u32 __init imx8mq_soc_magic_node(const char *node, u32 offset)
 {
 	struct device_node *np;
-	void __iomem *ocotp_base;
+	void __iomem *base;
 	u32 magic;
-	u32 rev = 0;
 
-	np = of_find_compatible_node(NULL, NULL, "fsl,imx8mq-ocotp");
+	np = of_find_compatible_node(NULL, NULL, node);
 	if (!np)
-		goto out;
+		return 0;
+	base = of_iomap(np, 0);
+	WARN_ON(!base);
 
-	ocotp_base = of_iomap(np, 0);
-	WARN_ON(!ocotp_base);
-
-	magic = readl_relaxed(ocotp_base + IMX8MQ_SW_INFO_B1);
-	if (magic == IMX8MQ_SW_MAGIC_B1)
-		rev = REV_B1;
-
-	iounmap(ocotp_base);
-
-out:
+	magic = readl_relaxed(base + offset);
+	iounmap(base);
 	of_node_put(np);
-	return rev;
+
+	return magic;
+}
+
+static u32 __init imx8mq_soc_revision(void)
+{
+	u32 magic;
+
+	/* B1 revision identified by ocotop */
+	magic = imx8mq_soc_magic_node("fsl,imx8mq-ocotp", IMX8MQ_SW_INFO_B1);
+	if (magic == IMX8MQ_SW_MAGIC_B1)
+		return REV_B1;
+
+	/* B0 identified by bootrom */
+	magic = imx8mq_soc_magic_node("fsl,imx8mq-bootrom", IMX8MQ_SW_INFO_B0);
+	if ((magic & 0xff) == REV_B0)
+		return REV_B0;
+
+	/* A0 identified by anatop */
+	magic = imx8mq_soc_magic_node("fsl,imx8mq-anatop", IMX8MQ_SW_INFO_A0);
+	if ((magic & 0xff) == REV_A0)
+		return REV_A0;
+
+	/* Read revision from ATF as fallback */
+	magic = imx8mq_soc_revision_atf();
+	if (magic != 0xff)
+		return magic;
+
+	return 0;
 }
 
 static u32 __init imx8mm_soc_revision(void)
