@@ -621,9 +621,10 @@ void dcss_dpr_format_set(struct dcss_soc *dcss, int ch_num, u32 pix_format,
 	struct dcss_dpr_ch *ch = &dcss->dpr_priv->ch[ch_num];
 	enum dcss_color_space dcss_cs;
 	struct drm_format_name_buf name_buf;
+	const struct drm_format_info *info = drm_format_info(pix_format);
 
 	dcss_cs = dcss_drm_fourcc_to_colorspace(pix_format);
-	ch->planes = drm_format_num_planes(pix_format);
+	ch->planes = info->num_planes;
 	ch->bpp = dcss_dpr_get_bpp(pix_format);
 	ch->pix_format = pix_format;
 	ch->use_dtrc = ch_num && modifiers_present;

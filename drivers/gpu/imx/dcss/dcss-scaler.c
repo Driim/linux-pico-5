@@ -594,7 +594,6 @@ void dcss_scaler_setup(struct dcss_soc *dcss, int ch_num, u32 pix_format,
 {
 	struct dcss_scaler_ch *ch = &dcss->scaler_priv->ch[ch_num];
 	enum dcss_color_space dcss_cs;
-	int planes;
 	unsigned int pixel_depth;
 	bool rtr_8line_en = false;
 	u32 bpp;
@@ -603,8 +602,6 @@ void dcss_scaler_setup(struct dcss_soc *dcss, int ch_num, u32 pix_format,
 	bool wrscl_needed = false;
 
 	dcss_cs = dcss_drm_fourcc_to_colorspace(pix_format);
-	planes = drm_format_num_planes(pix_format);
-
 	if (dcss_cs == DCSS_COLORSPACE_YUV) {
 		dcss_scaler_yuv_enable(dcss, ch_num, true);
 
