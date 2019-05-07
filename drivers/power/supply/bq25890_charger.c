@@ -66,6 +66,8 @@ struct bq25890_init_data {
 	u8 boosti;	/* boost current limit		*/
 	u8 boostf;	/* boost frequency		*/
 	u8 ilim_en;	/* enable ILIM pin		*/
+	u8 force_vindpm;/* force vinmin threshold	*/
+	u8 vindpm;	/* vinmin threshold		*/
 	u8 treg;	/* thermal regulation threshold */
 };
 
@@ -241,6 +243,8 @@ enum bq25890_table_ids {
 	TBL_VREG,
 	TBL_BOOSTV,
 	TBL_SYSVMIN,
+	TBL_FORCE_VINDPM,
+	TBL_VINDPM,
 
 	/* lookup tables */
 	TBL_TREG,
@@ -275,11 +279,13 @@ static const union {
 	struct bq25890_lookup lt;
 } bq25890_tables[] = {
 	/* range tables */
-	[TBL_ICHG] =	{ .rt = {0,	  5056000, 64000} },	 /* uA */
-	[TBL_ITERM] =	{ .rt = {64000,   1024000, 64000} },	 /* uA */
-	[TBL_VREG] =	{ .rt = {3840000, 4608000, 16000} },	 /* uV */
-	[TBL_BOOSTV] =	{ .rt = {4550000, 5510000, 64000} },	 /* uV */
-	[TBL_SYSVMIN] = { .rt = {3000000, 3700000, 100000} },	 /* uV */
+	[TBL_ICHG] =		{ .rt = {0,	   5056000,  64000} },	 /* uA */
+	[TBL_ITERM] =		{ .rt = {64000,    1024000,  64000} },	 /* uA */
+	[TBL_VREG] =		{ .rt = {3840000,  4608000,  16000} },	 /* uV */
+	[TBL_BOOSTV] =		{ .rt = {4550000,  5510000,  64000} },	 /* uV */
+	[TBL_SYSVMIN] = 	{ .rt = {3000000,  3700000, 100000} },   /* uV */
+	[TBL_FORCE_VINDPM] =	{ .rt = {0,	  	 1,	 1} },	 /* on/off */
+	[TBL_VINDPM] =		{ .rt = {2600000, 15300000, 100000} },	 /* uV */
 
 	/* lookup tables */
 	[TBL_TREG] =	{ .lt = {bq25890_treg_tbl, BQ25890_TREG_TBL_SIZE} },
@@ -614,6 +620,8 @@ static int bq25890_hw_init(struct bq25890_device *bq)
 		{F_BOOSTI,	 bq->init_data.boosti},
 		{F_BOOSTF,	 bq->init_data.boostf},
 		{F_EN_ILIM,	 bq->init_data.ilim_en},
+		{F_FORCE_VINDPM, bq->init_data.force_vindpm},
+		{F_VINDPM,	 bq->init_data.vindpm},
 		{F_TREG,	 bq->init_data.treg}
 	};
 
@@ -776,6 +784,8 @@ static int bq25890_fw_read_u32_props(struct bq25890_device *bq)
 		{"ti,boost-max-current", false, TBL_BOOSTI, &init->boosti},
 
 		/* optional properties */
+		{"ti,use-vinmin-threshold", true, TBL_FORCE_VINDPM, &init->force_vindpm},
+		{"ti,vinmin-threshold", true, TBL_VINDPM, &init->vindpm},
 		{"ti,thermal-regulation-threshold", true, TBL_TREG, &init->treg}
 	};
 
