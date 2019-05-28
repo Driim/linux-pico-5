@@ -29,6 +29,7 @@
 
 #include <drm/drmP.h>
 #include <drm/drm_fourcc.h>
+#include <drm/drm_print.h>
 
 static char printable_char(int c)
 {
