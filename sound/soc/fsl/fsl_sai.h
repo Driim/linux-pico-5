@@ -15,6 +15,9 @@
 			 SNDRV_PCM_FMTBIT_S32_LE)
 
 /* SAI Register Map Register */
+#define FSL_SAI_VERID   0x00 /* SAI Version ID Register */
+#define FSL_SAI_PARAM   0x04 /* SAI Parameter Register */
+
 #define FSL_SAI_TCSR(offset) (0x00 + offset) /* SAI Transmit Control */
 #define FSL_SAI_TCR1(offset) (0x04 + offset) /* SAI Transmit Configuration 1 */
 #define FSL_SAI_TCR2(offset) (0x08 + offset) /* SAI Transmit Configuration 2 */

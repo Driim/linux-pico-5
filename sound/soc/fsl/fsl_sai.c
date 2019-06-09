@@ -706,7 +706,6 @@ static int fsl_sai_startup(struct snd_pcm_substream *substream,
 
 	ret = clk_prepare_enable(sai->bus_clk);
 	if (ret) {
-		dev_err(dev, "failed to enable bus clock: %d\n", ret);
 		return ret;
 	}
 
