@@ -245,6 +245,26 @@
 	};
 };
 
+&A53_0 {
+       operating-points-v2 = <&a53_opp_table>;
+       cpu-supply = <&buck2_reg>;
+};
+
+&A53_1 {
+       operating-points-v2 = <&a53_opp_table>;
+       cpu-supply = <&buck2_reg>;
+};
+
+&A53_2 {
+       operating-points-v2 = <&a53_opp_table>;
+       cpu-supply = <&buck2_reg>;
+};
+
+&A53_3 {
+       operating-points-v2 = <&a53_opp_table>;
+       cpu-supply = <&buck2_reg>;
+};
+
 &clk {
 	assigned-clocks = <&clk IMX8MQ_AUDIO_PLL1>, <&clk IMX8MQ_AUDIO_PLL2>;
 	assigned-clock-rates = <786432000>, <722534400>;
