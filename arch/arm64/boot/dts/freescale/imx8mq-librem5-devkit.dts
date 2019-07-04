@@ -436,6 +436,14 @@
 		AVDD28-supply = <&reg_2v8_p>;
 		VDDIO-supply = <&reg_1v8_p>;
 	};
+
+	prox@60 {
+	        compatible = "vishay,vcnl4040", "vishay,vcnl4200";
+	        reg = <0x60>;
+		pinctrl-0 = <&pinctrl_prox>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
+	};
 };
 
 &iomuxc {
@@ -529,6 +537,12 @@
 	pinctrl_pmic: pmicgrp {
 		fsl,pins = <
 			MX8MQ_IOMUXC_GPIO1_IO03_GPIO1_IO3	0x80  /* PMIC intr */
+		>;
+	};
+
+	pinctrl_prox: proxgrp {
+		fsl,pins = <
+			MX8MQ_IOMUXC_GPIO1_IO12_GPIO1_IO12	0x80 /* PROX_INT */
 		>;
 	};
 
