@@ -10,6 +10,8 @@
  * +-125/+-245/+-500/+-1000/+-2000 dps
  * LSM6DSx series has an integrated First-In-First-Out (FIFO) buffer
  * allowing dynamic batching of sensor data.
+ * LSM9DSx series is similar but includes an additional magnetometer, handled
+ * by a different driver.
  *
  * Supported sensors:
  * - LSM6DS3:
@@ -29,6 +31,13 @@
  *   - Accelerometer supported full-scale [g]: +-2/+-4/+-8/+-16
  *   - Gyroscope supported full-scale [dps]: +-125/+-245/+-500/+-1000/+-2000
  *   - FIFO size: 3KB
+ *
+ * - LSM9DS1:
+ *   - Accelerometer supported ODR [Hz]: 10, 50, 119, 238, 476, 952
+ *   - Accelerometer supported full-scale [g]: +-2/+-4/+-8/+-16
+ *   - Gyroscope supported ODR [Hz]: 15, 60, 119, 238, 476, 952
+ *   - Gyroscope supported full-scale [dps]: +-245/+-500/+-2000
+ *   - FIFO size: 32
  *
  * Copyright 2016 STMicroelectronics Inc.
  *
@@ -64,6 +73,10 @@
 #define ST_LSM6DSX_REG_GYRO_OUT_Y_L_ADDR	0x24
 #define ST_LSM6DSX_REG_GYRO_OUT_Z_L_ADDR	0x26
 
+#define ST_LSM9DSX_REG_GYRO_OUT_X_L_ADDR	0x18
+#define ST_LSM9DSX_REG_GYRO_OUT_Y_L_ADDR	0x1a
+#define ST_LSM9DSX_REG_GYRO_OUT_Z_L_ADDR	0x1c
+
 static const struct st_lsm6dsx_odr_table_entry st_lsm6dsx_odr_table[] = {
 	[ST_LSM6DSX_ID_ACC] = {
 		.reg = {
@@ -88,6 +101,30 @@ static const struct st_lsm6dsx_odr_table_entry st_lsm6dsx_odr_table[] = {
 		.odr_avl[3] = { 104, 0x04 },
 		.odr_avl[4] = { 208, 0x05 },
 		.odr_avl[5] = { 416, 0x06 },
+	},
+	[ST_LSM9DSX_ID_ACC] = {
+		.reg = {
+			.addr = 0x20,
+			.mask = GENMASK(7, 5),
+		},
+		.odr_avl[0] = {  10, 0x01 },
+		.odr_avl[1] = {  50, 0x02 },
+		.odr_avl[2] = { 119, 0x03 },
+		.odr_avl[3] = { 238, 0x04 },
+		.odr_avl[4] = { 476, 0x05 },
+		.odr_avl[5] = { 952, 0x06 },
+	},
+	[ST_LSM9DSX_ID_GYRO] = {
+		.reg = {
+			.addr = 0x10,
+			.mask = GENMASK(7, 5),
+		},
+		.odr_avl[0] = {  15, 0x01 },
+		.odr_avl[1] = {  60, 0x02 },
+		.odr_avl[2] = { 119, 0x03 },
+		.odr_avl[3] = { 238, 0x04 },
+		.odr_avl[4] = { 476, 0x05 },
+		.odr_avl[5] = { 952, 0x06 },
 	}
 };
 
@@ -111,10 +148,40 @@ static const struct st_lsm6dsx_fs_table_entry st_lsm6dsx_fs_table[] = {
 		.fs_avl[1] = { IIO_DEGREE_TO_RAD(17500), 0x1 },
 		.fs_avl[2] = { IIO_DEGREE_TO_RAD(35000), 0x2 },
 		.fs_avl[3] = { IIO_DEGREE_TO_RAD(70000), 0x3 },
+	},
+	[ST_LSM9DSX_ID_ACC] = {
+		.reg = {
+			.addr = 0x20,
+			.mask = GENMASK(4, 3),
+		},
+		.fs_avl[0] = {  599, 0x0 },
+		.fs_avl[1] = { 1197, 0x2 },
+		.fs_avl[2] = { 2394, 0x3 },
+		.fs_avl[3] = { 4788, 0x1 },
+	},
+	[ST_LSM9DSX_ID_GYRO] = {
+		.reg = {
+			.addr = 0x10,
+			.mask = GENMASK(4, 3),
+		},
+		.fs_avl[0] = { IIO_DEGREE_TO_RAD(245), 0x0 },
+		.fs_avl[1] = { IIO_DEGREE_TO_RAD(500), 0x1 },
+		.fs_avl[2] = { IIO_DEGREE_TO_RAD(0), 0x2 },
+		.fs_avl[3] = { IIO_DEGREE_TO_RAD(2000), 0x3 },
 	}
 };
 
 static const struct st_lsm6dsx_settings st_lsm6dsx_sensor_settings[] = {
+	{
+		.wai = 0x68,
+		.reg_int1_addr = 0x0c,
+		.reg_int2_addr = 0x0d,
+		.reg_reset_addr = 0x22,
+		.max_fifo_size = 32,
+		.id = {
+			[0] = ST_LSM9DS1_ID,
+		},
+	},
 	{
 		.wai = 0x69,
 		.reg_int1_addr = 0x0d,
@@ -488,6 +555,16 @@ static const struct iio_chan_spec st_lsm6dsx_gyro_channels[] = {
 	ST_LSM6DSX_CHANNEL(IIO_ANGL_VEL, ST_LSM6DSX_REG_GYRO_OUT_Y_L_ADDR,
 			   IIO_MOD_Y, 1),
 	ST_LSM6DSX_CHANNEL(IIO_ANGL_VEL, ST_LSM6DSX_REG_GYRO_OUT_Z_L_ADDR,
+			   IIO_MOD_Z, 2),
+	IIO_CHAN_SOFT_TIMESTAMP(3),
+};
+
+static const struct iio_chan_spec st_lsm9dsx_gyro_channels[] = {
+	ST_LSM6DSX_CHANNEL(IIO_ANGL_VEL, ST_LSM9DSX_REG_GYRO_OUT_X_L_ADDR,
+			   IIO_MOD_X, 0),
+	ST_LSM6DSX_CHANNEL(IIO_ANGL_VEL, ST_LSM9DSX_REG_GYRO_OUT_Y_L_ADDR,
+			   IIO_MOD_Y, 1),
+	ST_LSM6DSX_CHANNEL(IIO_ANGL_VEL, ST_LSM9DSX_REG_GYRO_OUT_Z_L_ADDR,
 			   IIO_MOD_Z, 2),
 	IIO_CHAN_SOFT_TIMESTAMP(3),
 };
@@ -1056,6 +1133,7 @@ static struct iio_dev *st_lsm6dsx_alloc_iiodev(struct st_lsm6dsx_hw *hw,
 
 	switch (id) {
 	case ST_LSM6DSX_ID_ACC:
+	case ST_LSM9DSX_ID_ACC:
 		iio_dev->channels = st_lsm6dsx_acc_channels;
 		iio_dev->num_channels = ARRAY_SIZE(st_lsm6dsx_acc_channels);
 		iio_dev->info = &st_lsm6dsx_acc_info;
@@ -1066,6 +1144,14 @@ static struct iio_dev *st_lsm6dsx_alloc_iiodev(struct st_lsm6dsx_hw *hw,
 	case ST_LSM6DSX_ID_GYRO:
 		iio_dev->channels = st_lsm6dsx_gyro_channels;
 		iio_dev->num_channels = ARRAY_SIZE(st_lsm6dsx_gyro_channels);
+		iio_dev->info = &st_lsm6dsx_gyro_info;
+
+		scnprintf(sensor->name, sizeof(sensor->name), "%s_gyro",
+			  name);
+		break;
+	case ST_LSM9DSX_ID_GYRO:
+		iio_dev->channels = st_lsm9dsx_gyro_channels;
+		iio_dev->num_channels = ARRAY_SIZE(st_lsm9dsx_gyro_channels);
 		iio_dev->info = &st_lsm6dsx_gyro_info;
 
 		scnprintf(sensor->name, sizeof(sensor->name), "%s_gyro",
@@ -1109,10 +1195,18 @@ int st_lsm6dsx_probe(struct device *dev, int irq, int hw_id,
 	if (err < 0)
 		return err;
 
-	for (i = 0; i < ST_LSM6DSX_ID_EXT0; i++) {
-		hw->iio_devs[i] = st_lsm6dsx_alloc_iiodev(hw, i, name);
-		if (!hw->iio_devs[i])
-			return -ENOMEM;
+	if (hw_id == ST_LSM9DS1_ID) {
+		for (i = ST_LSM9DSX_ID_GYRO; i <= ST_LSM9DSX_ID_ACC; i++) {
+			hw->iio_devs[i] = st_lsm6dsx_alloc_iiodev(hw, i, name);
+			if (!hw->iio_devs[i])
+				return -ENOMEM;
+		}
+	} else {
+		for (i = 0; i < ST_LSM6DSX_ID_EXT0; i++) {
+			hw->iio_devs[i] = st_lsm6dsx_alloc_iiodev(hw, i, name);
+			if (!hw->iio_devs[i])
+				return -ENOMEM;
+		}
 	}
 
 	err = st_lsm6dsx_init_device(hw);
