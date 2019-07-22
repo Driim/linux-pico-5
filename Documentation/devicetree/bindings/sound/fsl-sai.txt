@@ -54,6 +54,10 @@ Optional properties:
 			  represents first data line, bit 1 represents second
 			  data line and so on. Data line is enabled if
 			  corresponding bit is set to 1.
+  - fsl,fcomb_mode	: list of two integers (first for RX, second for TX)
+			  representing FIFO combine mode. Possible values for
+			  combined mode are: 0 - disabled, 1 - Rx/Tx from shift
+			  registers, 2 - Rx/Tx by software, 3 - both.
 
 Optional properties (for mx6ul):
 
