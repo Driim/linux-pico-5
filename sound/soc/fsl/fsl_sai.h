@@ -115,6 +115,8 @@
 #define FSL_SAI_CR3_WDFL_MASK	0x1f
 
 /* SAI Transmit and Receive Configuration 4 Register */
+#define FSL_SAI_CR4_FCOMB_SHIFT BIT(26)
+#define FSL_SAI_CR4_FCOMB_SOFT  BIT(27)
 #define FSL_SAI_CR4_FRSZ(x)	(((x) - 1) << 16)
 #define FSL_SAI_CR4_FRSZ_MASK	(0x1f << 16)
 #define FSL_SAI_CR4_SYWD(x)	(((x) - 1) << 8)
@@ -155,6 +157,12 @@
 #define FSL_SAI_MAXBURST_TX 6
 #define FSL_SAI_MAXBURST_RX 6
 
+/* FIFO combine modes */
+#define FSL_SAI_FCOMB_NONE     0
+#define FSL_SAI_FCOMB_SHIFT    1
+#define FSL_SAI_FCOMB_SOFT     2
+#define FSL_SAI_FCOMB_BOTH     3
+
 struct fsl_sai_soc_data {
 	bool use_imx_pcm;
 	unsigned int fifo_depth;
@@ -177,6 +185,7 @@ struct fsl_sai {
 	unsigned int slot_width;
 
 	unsigned int dl_mask[2];
+	unsigned int fcomb_mode[2];
 
 	const struct fsl_sai_soc_data *soc_data;
 	struct snd_dmaengine_dai_dma_data dma_params_rx;

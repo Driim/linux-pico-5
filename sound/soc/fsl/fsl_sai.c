@@ -475,6 +475,35 @@ static int fsl_sai_hw_params(struct snd_pcm_substream *substream,
 		}
 	}
 
+	switch (sai->soc_data->fcomb_mode[tx]) {
+	case FSL_SAI_FCOMB_NONE:
+		regmap_update_bits(sai->regmap, FSL_SAI_xCR4(tx),
+				   FSL_SAI_CR4_FCOMB_SOFT |
+				   FSL_SAI_CR4_FCOMB_SHIFT, 0);
+		break;
+	case FSL_SAI_FCOMB_SHIFT:
+		regmap_update_bits(sai->regmap, FSL_SAI_xCR4(tx),
+				   FSL_SAI_CR4_FCOMB_SOFT |
+				   FSL_SAI_CR4_FCOMB_SHIFT,
+				   FSL_SAI_CR4_FCOMB_SHIFT);
+		break;
+	case FSL_SAI_FCOMB_SOFT:
+		regmap_update_bits(sai->regmap, FSL_SAI_xCR4(tx),
+				   FSL_SAI_CR4_FCOMB_SOFT |
+				   FSL_SAI_CR4_FCOMB_SHIFT,
+				   FSL_SAI_CR4_FCOMB_SOFT);
+		break;
+	case FSL_SAI_FCOMB_BOTH:
+		regmap_update_bits(sai->regmap, FSL_SAI_xCR4(tx),
+				   FSL_SAI_CR4_FCOMB_SOFT |
+				   FSL_SAI_CR4_FCOMB_SHIFT,
+				   FSL_SAI_CR4_FCOMB_SOFT |
+				   FSL_SAI_CR4_FCOMB_SHIFT);
+		break;
+	default:
+		break;
+	}
+
 	regmap_update_bits(sai->regmap, FSL_SAI_xCR4(tx),
 			   FSL_SAI_CR4_SYWD_MASK | FSL_SAI_CR4_FRSZ_MASK,
 			   val_cr4);
@@ -886,6 +915,14 @@ static int fsl_sai_probe(struct platform_device *pdev)
 			sai->mclk_clk[i] = NULL;
 		}
 	}
+
+	/* FIFO combine mode for TX/RX, defaults to disabled */
+	sai->fcomb_mode[RX] = FSL_SAI_FCOMB_NONE;
+	sai->fcomb_mode[TX] = FSL_SAI_FCOMB_NONE;
+	of_property_read_u32_index(np, "fsl,fcomb-mode", RX,
+				   &sai->fcomb_mode[RX]);
+	of_property_read_u32_index(np, "fsl,fcomb-mode", TX,
+				   &sai->fcomb_mode[TX]);
 
 	/* active data lines mask for TX/RX, defaults to 1 (only the first
 	 * data line is enabled
