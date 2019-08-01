@@ -926,6 +926,9 @@ static s64 cpuidle_cooling_runtime(struct cpuidle_cooling_device *idle_cdev)
 	if (!state)
 		return 0;
 
+	if (state == 100)
+		state = 99;
+
 	next_wakeup = (s64)((idle_cdev->idle_cycle * 100) / state) -
 		idle_cdev->idle_cycle;
 
