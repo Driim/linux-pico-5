@@ -1468,8 +1468,10 @@ static int cpufreq_online(unsigned int cpu)
 	if (cpufreq_driver->ready)
 		cpufreq_driver->ready(policy);
 
+#ifdef CONFIG_CPU_FREQ_THERMAL
 	if (cpufreq_thermal_control_enabled(cpufreq_driver))
 		policy->cdev = of_cpufreq_cooling_register(policy);
+#endif
 
 	pr_debug("initialization complete\n");
 
