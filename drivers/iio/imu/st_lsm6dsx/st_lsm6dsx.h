@@ -22,7 +22,6 @@
 #define ST_ASM330LHH_DEV_NAME	"asm330lhh"
 #define ST_LSM6DSOX_DEV_NAME	"lsm6dsox"
 #define ST_LSM6DSR_DEV_NAME	"lsm6dsr"
-#define ST_LSM9DS1_DEV_NAME	"lsm9ds1"
 
 enum st_lsm6dsx_hw_id {
 	ST_LSM6DS3_ID,
@@ -34,7 +33,6 @@ enum st_lsm6dsx_hw_id {
 	ST_ASM330LHH_ID,
 	ST_LSM6DSOX_ID,
 	ST_LSM6DSR_ID,
-	ST_LSM9DS1_ID,
 	ST_LSM6DSX_MAX_ID,
 };
 
@@ -232,8 +230,6 @@ enum st_lsm6dsx_sensor_id {
 	ST_LSM6DSX_ID_EXT0,
 	ST_LSM6DSX_ID_EXT1,
 	ST_LSM6DSX_ID_EXT2,
-	ST_LSM9DSX_ID_GYRO,
-	ST_LSM9DSX_ID_ACC,
 	ST_LSM6DSX_ID_MAX,
 };
 
