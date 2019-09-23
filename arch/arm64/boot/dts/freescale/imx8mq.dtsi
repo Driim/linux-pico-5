@@ -36,6 +36,8 @@
 		spi0 = &ecspi1;
 		spi1 = &ecspi2;
 		spi2 = &ecspi3;
+		mmc0 = &usdhc1;
+		mmc1 = &usdhc2;
 	};
 
 	ckil: clock-ckil {
@@ -101,9 +103,6 @@
 			next-level-cache = <&A53_L2>;
 			operating-points-v2 = <&a53_opp_table>;
 			#cooling-cells = <2>;
-			nvmem-cells = <&cpu_speed_grade>;
-			nvmem-cell-names = "speed_grade";
-			cpu-idle-states = <&CPU_SLEEP>;
 		};
 
 		A53_1: cpu@1 {
@@ -116,7 +115,6 @@
 			next-level-cache = <&A53_L2>;
 			operating-points-v2 = <&a53_opp_table>;
 			#cooling-cells = <2>;
-			cpu-idle-states = <&CPU_SLEEP>;
 		};
 
 		A53_2: cpu@2 {
@@ -129,7 +127,6 @@
 			next-level-cache = <&A53_L2>;
 			operating-points-v2 = <&a53_opp_table>;
 			#cooling-cells = <2>;
-			cpu-idle-states = <&CPU_SLEEP>;
 		};
 
 		A53_3: cpu@3 {
@@ -142,27 +139,11 @@
 			next-level-cache = <&A53_L2>;
 			operating-points-v2 = <&a53_opp_table>;
 			#cooling-cells = <2>;
-			cpu-idle-states = <&CPU_SLEEP>;
 		};
 
 		A53_L2: l2-cache0 {
 			compatible = "cache";
 		};
-
-		idle-states {
-			entry-method = "psci";
-
-			CPU_SLEEP: cpu-sleep {
-				compatible = "arm,idle-state";
-				arm,psci-suspend-param = <0x0010033>;
-				local-timer-stop;
-				entry-latency-us = <1000>;
-				exit-latency-us = <700>;
-				min-residency-us = <2700>;
-				wakeup-latency-us = <1500>;
-			};
-		};
-
 	};
 
 	a53_opp_table: opp-table {
@@ -177,26 +158,10 @@
 			clock-latency-ns = <150000>;
 		};
 
-		opp-1000000000 {
-			opp-hz = /bits/ 64 <1000000000>;
-			opp-microvolt = <900000>;
-			/* Consumer only */
-			opp-supported-hw = <0xe>, <0x3>;
-			clock-latency-ns = <150000>;
-		};
-
 		opp-1300000000 {
 			opp-hz = /bits/ 64 <1300000000>;
 			opp-microvolt = <1000000>;
 			opp-supported-hw = <0xc>, <0x7>;
-			clock-latency-ns = <150000>;
-		};
-
-		opp-1500000000 {
-			opp-hz = /bits/ 64 <1500000000>;
-			opp-microvolt = <1000000>;
-			/* Consumer only but rely on speed grading */
-			opp-supported-hw = <0x8>, <0x7>;
 			clock-latency-ns = <150000>;
 		};
 	};
@@ -550,7 +515,6 @@
 				reg = <0x303a0000 0x10000>;
 				interrupt-parent = <&gic>;
 				interrupt-controller;
-				broken-wake-request-signals;
 				#interrupt-cells = <3>;
 
 				pgc {
@@ -869,7 +833,7 @@
 				status = "disabled";
 			};
 
-			usdhc1: mmc@30b40000 {
+			usdhc1: usdhc@30b40000 {
 				compatible = "fsl,imx8mq-usdhc",
 				             "fsl,imx7d-usdhc";
 				reg = <0x30b40000 0x10000>;
@@ -882,11 +846,12 @@
 				assigned-clock-rates = <400000000>;
 				fsl,tuning-start-tap = <20>;
 				fsl,tuning-step = <2>;
+				fsl,strobe-dll-delay-target = <5>;
 				bus-width = <4>;
 				status = "disabled";
 			};
 
-			usdhc2: mmc@30b50000 {
+			usdhc2: usdhc@30b50000 {
 				compatible = "fsl,imx8mq-usdhc",
 				             "fsl,imx7d-usdhc";
 				reg = <0x30b50000 0x10000>;
