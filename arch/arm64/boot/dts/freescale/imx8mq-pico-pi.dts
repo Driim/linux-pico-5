@@ -227,6 +227,25 @@
  status = "okay";
 };
 
+&i2c3 {
+ clock-frequency = <387000>;
+ pinctrl-names = "default";
+ pinctrl-0 = <&pinctrl_i2c3>;
+ status = "okay";
+
+ polytouch: edt-ft5x06@38 {
+   compatible = "edt,edt-ft5x06";
+   reg = <0x38>;
+   pinctrl-names = "default";
+   pinctrl-0 = <&pinctrl_ft5336_touch_irq &pinctrl_ft5336_touch_rst>;
+   interrupt-parent = <&gpio1>;
+   interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
+   reset-gpios = <&gpio3 18 GPIO_ACTIVE_LOW>;
+   touchscreen-size-x = <720>;
+   touchscreen-size-y = <1280>;
+ };
+};
+
 &uart1 { /* console */
  pinctrl-names = "default";
  pinctrl-0 = <&pinctrl_uart1>;
@@ -311,6 +330,7 @@
   status = "okay";
 
   dcss_disp0: port@0 {
+    reg = <0>;
     dcss_disp0_mipi_dsi: endpoint {
       remote-endpoint = <&mipi_dsi_in>;
     };
@@ -361,9 +381,28 @@
    >;
  };
 
+ pinctrl_ft5336_touch_rst: ft5336_rstgrp {
+    fsl,pins = <
+      MX8MQ_IOMUXC_NAND_WP_B_GPIO3_IO18 0x16
+    >;
+  };
+
+ pinctrl_i2c3: i2c3grp {
+    fsl,pins = <
+      MX8MQ_IOMUXC_I2C3_SCL_I2C3_SCL    0x4000007f
+      MX8MQ_IOMUXC_I2C3_SDA_I2C3_SDA    0x4000007f
+    >;
+  };
+
  pinctrl_bl: blgrp {
     fsl,pins = <
       MX8MQ_IOMUXC_GPIO1_IO01_PWM1_OUT  0x6 /* DSI_BL_PWM */
+    >;
+  };
+
+  pinctrl_ft5336_touch_irq: ft5336_irqgrp {
+    fsl,pins = <
+      MX8MQ_IOMUXC_GPIO1_IO07_GPIO1_IO7 0x41
     >;
   };
 
